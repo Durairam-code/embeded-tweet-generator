@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<title>Twitter Iframe Embed Generator</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" integrity="sha256-OweaP/Ic6rsV+lysfyS4h+LM6sRwuO3euTYfr6M124g=" crossorigin="anonymous" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js" integrity="sha256-U/cHDMTIHCeMcvehBv1xQ052bPSbJtbuiw4QA9cTKz0=" crossorigin="anonymous" async></script>
+		<style>
+			body {
+				margin: 20px 0px 0px 0px;
+			}
+			:root {
+				--gridColor: #e0e0e0;
+				--gridStyle: 1px solid var(--gridColor);
+			}
+			#outputArea {
+				padding: 0.5rem 0.75rem;
+				border-top: var(--gridStyle);
+				margin-top: 20px;
+			}
+			#outputTextArea {
+				width: 90%;
+				min-height: 250px;
+				margin-left: 5%;
+				margin-top: 10px;
+			}
+			.previewWrapper {
+				border-left: var(--gridStyle);
+				min-height: 98vh !important;
+			}
+			.aboutButton {
+				width: 40px;
+				height: 40px;
+				background: black;
+				border-radius: 20px;
+				text-align: center;
+				line-height: 37px;
+				cursor: pointer;
+				font-size: 2rem;
+			}
+			.hidden {
+				display: none;
+			}
+			.center {
+				text-align: center;
+			}
+			#aboutSection.scale-transition {
+				transition-property: transform, height, max-height !important;
+				transition-duration: 0.5s !important;
+				transition-timing-function: cubic-bezier(0.53, 0.01, 0.36, 1.63) !important;
+			}
+			.scale-out,
+			.scale-out * {
+				margin: 0px !important;
+				padding: 0px !important;
+				overflow: hidden;
+			}
+			.row.scale-out {
+				margin-top: -20px !important;
+			}
+			.closeButton {
+				position: absolute;
+				top: 4px;
+				right: 4px;
+			}
+			.noHeight {
+				height: 0px !important;
+			}
+			#toast-container,
+			.toast-container {
+				top: unset;
+				left: 7%;
+				right: unset;
+				bottom: 10%;
+			}
+			[disabled],
+			[disabled] * {
+				cursor: not-allowed !important;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="aboutSection" class="scale-out scale-transition row noHeight" style="height: 160px">
+			<div class="col s10 offset-s1 card">
+				<div class="closeButton">❎</div>
+				<p>This is a tool for generating IFrame twitter embeds, as opposed to the normal HTML+JS snippet.</p>
+				<p>IFrames offer improved security and sandboxing controls, which is one of many reasons why you might want to use this tool.</p>
+				<p>
+					For more details, please visit <a href="https://joshuatz.com/projects/web-stuff/twitter-iframe-embed-generator/" rel="noopener" target="_blank">the project page</a>, or
+					<a href="https://github.com/joshuatz/twitter-iframe-generator" rel="noopener" target="_blank">the Github repo</a>.
+				</p>
+				<p class="center-align">
+					<span>My Twitter 🐦 - <a href="https://twitter.com/1joshuatz" rel="noopener" target="_blank">@1joshuatz</a></span>
+					<br />
+					<span>My Website 🔗 - <a href="https://joshuatz.com/" rel="noopener" target="_blank">joshuatz.com</a></span>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12 m6">
+				<form id="inputForm" class="col s12 row">
+					<!-- Tweet URL -->
+					<label class="singleUrl">
+						Tweet URL:
+						<input type="url" id="tweetUrlInput" placeholder="Tweet URL" />
+					</label>
+					<div class="row multipleUrl hidden">
+						<p class="center-align flow-text">Input your tweets, line by line</p>
+						<span class="center">If using a CSV, you can copy and paste the cells.</span>
+						<textarea id="tweetUrlInputMultiple" class="col s12" style="min-height: 120px" placeholder="https://twitter.com/1joshuatz/status/1178001362690293760&#10;https://twitter.com/1joshuatz/status/1178001362690293760"></textarea>
+					</div>
+					<!-- URL Input Type -->
+					<div class="radioWrapper formSection row">
+						<div class="col s4">URL Input Type</div>
+						<label class="col s4">
+							<input name="urlInputType" type="radio" value="single" checked />
+							<span>Single URL</span>
+						</label>
+						<label class="col s4">
+							<input name="urlInputType" type="radio" value="multiple" />
+							<span>Multiple URLs (list)</span>
+						</label>
+					</div>
+					<!-- IFrame Type Selector -->
+					<div class="radioWrapper formSection row iframeOnly">
+						<div class="col s4">IFrame Type</div>
+						<label class="col s4">
+							<input name="iframeType" type="radio" value="dataUri" checked />
+							<span>Data URI</span>
+						</label>
+						<label class="tooltipped col s4" data-position="bottom" data-tooltip="Warning: `srcdoc` is not supported on all browsers.">
+							<input name="iframeType" type="radio" value="srcDoc" />
+							<span>Src Doc</span>
+						</label>
+					</div>
+					<!-- Default Height -->
+					<div class="formSection row iframeOnly">
+						<div class="col s4">Default Height:</div>
+						<label class="col s8">
+							<input type="number" step="5" value="400" id="defaultHeight" />
+							<span>Default Height</span>
+						</label>
+					</div>
+					<!-- Checkboxes -->
+					<div class="row">
+						<label class="col s12 m6 iframeOnly" title="Should the iframe border be removed?">
+							<input type="checkbox" checked id="removeBorder" />
+							<span>Remove border?</span>
+						</label>
+						<label class="col s12 m6 iframeOnly" title="This applies the `sandbox` attribute to the iframe. Breaks most of the Twitter embed.">
+							<input type="checkbox" id="sandbox" />
+							<span>Sandbox</span>
+						</label>
+						<label class="col s12 m6 iframeOnly" title="Hide iframe overflow. This will prevent scrollbars from appearing if tweet is larger than iframe.">
+							<input type="checkbox" id="hideOverflow" />
+							<span>Hide overflow</span>
+						</label>
+					</div>
+					<div class="formSection row center-align">
+						<div class="switch">
+							<label>
+								IFrame
+								<input id="blockQuoteModeCheckbox" type="checkbox" />
+								<span class="lever"></span>
+								BlockQuote Only
+							</label>
+						</div>
+					</div>
+					<div class="formSection row center-align">
+						<button id="sampleButton" class="btn col s4 offset-s1" type="button" title="Load sample tweet.">Sample 📤</button>
+						<button id="generateButton" class="btn col s4 offset-s1" type="submit" title="Generate the output code.">Generate ✨</button>
+						<button id="saveButton" class="btn col s1 offset-s1 multipleUrl hidden" title="Save">💾</button>
+					</div>
+				</form>
+				<div id="outputArea" class="col s12 row">
+					<p class="center-align flow-text">Output HTML:</p>
+					<textarea id="outputTextArea" readonly class="col s12 disabled">Output will appear here...</textarea>
+				</div>
+			</div>
+			<div class="previewWrapper col s12 m6">
+				<p class="center-align flow-text">Preview:</p>
+				<div id="previewArea" class="center-align"></div>
+			</div>
+		</div>
+		<div class="fixed-action-btn">
+			<div class="aboutButton z-depth-3">❔</div>
+		</div>
+		<script src="./script.js"></script>
+		<script>
+			window.addEventListener('load', () => {
+				if (window['M']) {
+					M.AutoInit();
+				}
+			});
+		</script>
+	</body>
+</html>
